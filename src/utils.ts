@@ -10,3 +10,10 @@ export const getRandomString = (length: number) => {
   }
   return result;
 };
+
+export const getWebSocketUrl = (url: string): string => {
+  const { protocol, hostname, pathname, port } = new URL(url);
+
+  const socketProtocol = protocol === "http:" ? "ws:" : "wss:";
+  return `${socketProtocol}//${hostname}${port ? `:${port}` : ""}${pathname}`;
+};

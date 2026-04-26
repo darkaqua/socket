@@ -4,6 +4,15 @@ type EmitFunctionType = (
   response?: (message?: unknown) => void,
 ) => void;
 
+export type ServerProps = {
+  port: number;
+  hostname?: string;
+  ping?: boolean;
+  pingEvery?: number;
+  next?: (request: Request, connInfo: unknown) => Response | Promise<Response>;
+  onListen?: (data?: unknown) => void;
+};
+
 export type ServerClient = {
   id: string;
   _emit: EmitFunctionType;
@@ -36,7 +45,7 @@ export type Room = {
 
 export type ServerSocket = {
   on: (
-    event: "connected" | "disconnected" | "error" | "guest",
+    event: "connected" | "disconnected" | "error" | "guest" | string,
     callback: (client: ServerClient, data?: unknown) => void,
   ) => void;
   emit: (event: string, data?: unknown) => void;
@@ -44,4 +53,11 @@ export type ServerSocket = {
   getRoom: (name: string) => Room;
   removeRoom: (name: string) => void;
   close: () => Promise<void>;
+};
+
+export type GuestEvent = {
+  clientId: string;
+  protocols: string[];
+  connInfo: unknown;
+  headers: Record<string, string>;
 };
