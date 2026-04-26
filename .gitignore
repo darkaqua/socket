@@ -1,2 +1,7 @@
-.idea
+build
 node_modules
+.idea
+.yarn
+.vite
+*storybook.log
+storybook-static

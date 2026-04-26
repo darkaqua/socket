@@ -1,52 +1,6 @@
-type Props = {
-  url: string;
-  reconnect?: boolean;
-  reconnectIntents?: number;
-  reconnectInterval?: number;
-  silent?: boolean;
-  protocols?: string[];
-};
-
-type Mutable = {
-  connect: () => Promise<void>;
-  emit: (
-    event: string,
-    message?: unknown,
-    response?: (message?: unknown) => void,
-  ) => void;
-  on: (
-    event: "connected" | "disconnected" | "error",
-    callback: (data?: unknown) => void,
-  ) => () => void;
-  close: () => void;
-};
-
-enum ReadyState {
-  CONNECTING,
-  OPEN,
-  CLOSING,
-  CLOSED,
-}
-
-const getRandomString = (length: number) => {
-  let result = "";
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  const charactersLength = characters.length;
-  let counter = 0;
-  while (counter < length) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    counter += 1;
-  }
-  return result;
-};
-
-export const getWebSocketUrl = (url: string): string => {
-  const { protocol, hostname, pathname, port } = new URL(url);
-
-  const socketProtocol = protocol === "http:" ? "ws:" : "wss:";
-  return `${socketProtocol}//${hostname}${port ? `:${port}` : ""}${pathname}`;
-};
+import { getRandomString } from "./utils.ts";
+import { ClientMutable, ClientProps } from "./types/main.ts";
+import { ReadyState } from "./enums/main.ts";
 
 export const getClientSocket = ({
   url,
@@ -55,7 +9,7 @@ export const getClientSocket = ({
   reconnectInterval = 1_000,
   silent = false,
   protocols = [],
-}: Props): Mutable => {
+}: ClientProps): ClientMutable => {
   const events: Record<string, ((data?: unknown) => unknown | null)[]> = {};
 
   let socket: WebSocket;
@@ -82,6 +36,13 @@ export const getClientSocket = ({
           reconnects = 0;
         };
         const $onMessage = ({ data }: any) => {
+          if (!data) return;
+
+          if (data === "ping") {
+            socket.send("pong");
+            return;
+          }
+
           const { event, message } = JSON.parse(data);
           if (!events[event]) return;
 
