@@ -1,5 +1,4 @@
-import { getServerSocket } from "./src/server.ts";
-import { getClientSocket } from "./src/client.ts";
+import { getServerSocket, getClientSocket } from "./mod.ts";
 
 const socket = getServerSocket(Deno)({
   port: 1994,
